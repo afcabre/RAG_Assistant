@@ -1,0 +1,111 @@
+openapi: 3.0.3
+info:
+  title: RAG Assistant API
+  version: 1.0.0
+  description: API-first backend para asistente virtual con RAG.
+servers:
+  - url: http://localhost:3000
+paths:
+  /health:
+    get:
+      summary: Estado del backend
+      responses:
+        "200":
+          description: OK
+  /api/documents/upload:
+    post:
+      summary: Sube y procesa un PDF
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+                - file
+      responses:
+        "201":
+          description: Documento procesado y almacenado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadResponse"
+        "400":
+          description: Solicitud inválida
+  /api/chat/ask:
+    post:
+      summary: Pregunta al asistente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AskRequest"
+      responses:
+        "200":
+          description: Respuesta generada por el asistente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AskResponse"
+        "400":
+          description: Solicitud inválida
+components:
+  schemas:
+    AskRequest:
+      type: object
+      properties:
+        question:
+          type: string
+        topK:
+          type: integer
+          minimum: 1
+          maximum: 15
+      required:
+        - question
+    UploadResponse:
+      type: object
+      properties:
+        documentId:
+          type: string
+        fileName:
+          type: string
+        chunksStored:
+          type: integer
+      required:
+        - documentId
+        - fileName
+        - chunksStored
+    AskResponse:
+      type: object
+      properties:
+        answer:
+          type: string
+        sources:
+          type: array
+          items:
+            $ref: "#/components/schemas/Source"
+        retrievedChunks:
+          type: integer
+      required:
+        - answer
+        - sources
+        - retrievedChunks
+    Source:
+      type: object
+      properties:
+        documentId:
+          type: string
+        fileName:
+          type: string
+        page:
+          type: integer
+      required:
+        - documentId
+        - fileName
+        - page
+
