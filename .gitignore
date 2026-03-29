@@ -8,4 +8,5 @@ coverage
 frontend/dist
 backend/dist
 .codex
-pdf
+/pdf
+DeployLog/
